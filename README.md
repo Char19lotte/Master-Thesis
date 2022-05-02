@@ -8,4 +8,4 @@ Understanding topic prevalence in oral debates on Artificial Intelligence: A com
 
 
 ### Contact me
-c.kaiser@mpp.hertie-school.org to get in touch 
+c.kaiser@mpp.hertie-school.org 

@@ -1,0 +1,90 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+---
+
+# Data Analysis
+### Multivariate regression for the Speaker Corpus, EU.- conducted in May 2022
+***
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r}
+#Preliminaries
+library("lmtest")
+library("plm")
+library(stargazer)
+library(tidyverse)
+library(broom)
+theme_set(theme_classic())
+setwd("/Users/charlottekaiser/Documents/uni/Hertie/master_thesis/00_data/50_analysis")
+eu_reg<-read.csv("multivariate-reg-data-eu.csv")
+head(eu_reg)
+```
+
+### 1 Check states 
+How many states does this dataset contain? 
+
+```{r}
+print("number of states:")
+print(length(unique(eu_reg$member_state)))
+print("number of parties:")
+print(length(unique(eu_reg$party_group)))
+```
+
+
+### 2 Regression
+#### 2.1 OLS 
+Run a full model with all state individual effects and a fixed effects model for all topics and party groups
+```{r}
+summary(one_full <- plm(European_technology_capacity ~ gender + (member_state) + factor(party_group),
+              data=eu_reg, index="party_group", model="within", type="bp"))
+summary(two_full <- plm(Digital_sovereignty ~ gender + (member_state) + factor(party_group),
+              data=eu_reg, index="party_group", model="within"))
+summary(three_full <- plm(Democracy ~ gender +  (member_state) + factor(party_group),
+              data=eu_reg, index="party_group", model="within"))
+summary(four_full <- plm(AI_education ~ gender +  (member_state) + factor(party_group),
+              data=eu_reg, index="party_group", model="within"))
+summary(five_full <- plm(Human_rights ~ gender + (member_state) + factor(party_group),
+              data=eu_reg, index="party_group", model="within"))
+summary(six_full <- plm(Global_market ~ gender + (member_state) + factor(party_group),
+              data=eu_reg, index="party_group", model="within"))
+```
+
+
+```{r, warning = F, message = F}
+getwd()
+setwd("/Users/charlottekaiser/Documents/uni/Hertie/master_thesis/20_results/10_analysis/LDA_speaking-points")
+getwd()
+```
+
+### Save table output
+```{r, warning = F, message = F}
+# Preliminaries for table design. 
+robust.order <- c("gender") 
+robust.label =  c( "Gender (1 = female/0 = male")
+
+
+# Set up table with all three basic analyses components
+stargazer(one_full, two_full, three_full, four_full, five_full, six_full,
+          title="Multivariate OLS Regressions for various topics", 
+          type = 'html', 
+          out = "regressions_eu.html",
+          omit.stat=c("f", "ser"),
+          style = "apsr", 
+          order=paste0("^", robust.order , "$"), 
+          digits=4, notes.align="l", 
+          notes.append=FALSE,
+          dep.var.labels ="",
+          notes.label="", 
+          model.numbers=TRUE, 
+          covariate.labels =robust.label, 
+          notes=c("Standard errors given in parentheses.",
+          "***p<0.01; **p<0.05; *p<0.1.",
+          "Prevalence measured in %"),
+          summary.stat=("n"))
+
+```
